@@ -1,38 +1,298 @@
+<div class="space-y-6 animate-fade-in">
 
-<div>
-  <div class="p-3">
-    @if (loadService.isLoading()) {
-      <div class="spinner-border" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-    }
-  </div>
+  @if (rawClientsState$ | async; as state) {
 
-  @if (clients$ | async; as state) {
     @if (state.status === RequestStatus.ERROR) {
-      <div class="text-danger">
-        {{ state.errorMessage }}
+      <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 flex items-start justify-between gap-3 shadow-xs">
+        <div class="flex items-center gap-2.5">
+          <i class="bi bi-exclamation-triangle-fill text-rose-600 text-lg"></i>
+          <div>
+            <h4 class="font-semibold text-xs text-rose-900">Communication Impossible avec Customer-Service</h4>
+            <p class="text-xs text-rose-700 mt-0.5">{{ state.errorMessage }} (Vérifiez la Gateway 9999 et Customer-Service 8056)</p>
+          </div>
+        </div>
+        <button
+          (click)="refresh()"
+          class="px-3 py-1.5 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-800 text-xs font-medium transition active:scale-95">
+          <i class="bi bi-arrow-clockwise"></i> Réessayer
+        </button>
       </div>
-    } @else if (state.status === RequestStatus.SUCCESS) {
-      <table class="table">
-        <thead>
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Email</th>
-        </tr>
-        </thead>
-
-        <tbody>
-          @for (client of state.clients; track client.id) {
-            <tr>
-              <td>{{ client.id }}</td>
-              <td>{{ client.name }}</td>
-              <td>{{ client.email }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
     }
+
+    <!-- Bento Grid Métriques Clients (4 Cartes) -->
+    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      
+      <!-- Carte 1 : Total Clients -->
+      <div class="bg-white p-4 sm:p-5 rounded-xl border border-slate-200/90 shadow-xs flex flex-col justify-between hover:border-slate-300 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Clients</span>
+          <div class="w-8 h-8 rounded-lg bg-teal-50 border border-teal-200 text-teal-700 flex items-center justify-center text-sm">
+            <i class="bi bi-people-fill"></i>
+          </div>
+        </div>
+        <div class="mt-3">
+          <div class="text-2xl font-mono font-bold text-slate-900 tracking-tight">
+            {{ state.clients ? state.clients.length : 0 }}
+          </div>
+          <p class="text-xs text-slate-500 mt-1">Titulaires enregistrés</p>
+        </div>
+      </div>
+
+      <!-- Carte 2 : Microservice Source -->
+      <div class="bg-white p-4 sm:p-5 rounded-xl border border-slate-200/90 shadow-xs flex flex-col justify-between hover:border-slate-300 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Microservice</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        </div>
+        <div class="mt-3">
+          <div class="text-lg font-mono font-bold text-slate-800 tracking-tight">
+            customer-service
+          </div>
+          <p class="text-xs text-slate-500 mt-1 font-mono">Port HTTP 8056</p>
+        </div>
+      </div>
+
+      <!-- Carte 3 : Base de Données -->
+      <div class="bg-white p-4 sm:p-5 rounded-xl border border-slate-200/90 shadow-xs flex flex-col justify-between hover:border-slate-300 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Persistance</span>
+          <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center text-sm">
+            <i class="bi bi-database"></i>
+          </div>
+        </div>
+        <div class="mt-3">
+          <div class="text-lg font-mono font-bold text-slate-900 tracking-tight">
+            H2 In-Memory
+          </div>
+          <p class="text-xs text-slate-500 mt-1 font-mono">jdbc:h2:mem:customer-db</p>
+        </div>
+      </div>
+
+      <!-- Carte 4 : Protocole MCP Tool -->
+      <div class="bg-white p-4 sm:p-5 rounded-xl border border-slate-200/90 shadow-xs flex flex-col justify-between hover:border-slate-300 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Protocole IA</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 font-semibold font-mono">
+            MCP
+          </span>
+        </div>
+        <div class="mt-3">
+          <div class="text-lg font-mono font-bold text-purple-700 tracking-tight">
+            Streamable HTTP
+          </div>
+          <p class="text-xs text-slate-500 mt-1">Outils pour Spring AI</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Conteneur Bento Table des Clients -->
+    <div class="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden">
+      
+      <!-- Barre d'Outils Contextuelle -->
+      <div class="p-4 sm:p-5 border-b border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white">
+        <div>
+          <h3 class="font-semibold text-slate-900 text-sm tracking-tight">Répertoire des Clients</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Données de persistance Spring Data JPA et injection OpenFeign</p>
+        </div>
+
+        <div class="flex items-center gap-2.5 w-full sm:w-auto">
+          <!-- Recherche -->
+          <div class="relative flex-1 sm:w-64">
+            <i class="bi bi-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+            <input
+              [(ngModel)]="searchTerm"
+              type="text"
+              placeholder="Rechercher nom, email, ID..."
+              class="w-full pl-8 pr-3 py-1.5 rounded-lg bg-slate-50 border border-slate-300 text-xs text-slate-900 focus:outline-hidden focus:border-teal-500 focus:bg-white transition"
+            />
+          </div>
+
+          <!-- Bouton Rafraîchir -->
+          <button
+            (click)="refresh()"
+            title="Rafraîchir"
+            class="p-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 transition active:scale-95 text-xs">
+            <i class="bi bi-arrow-clockwise"></i>
+          </button>
+
+          <!-- Bouton d'Action Modal Contextuel -->
+          <button
+            (click)="openAddModal()"
+            class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 active:scale-95 text-white text-xs font-medium transition shadow-xs">
+            <i class="bi bi-person-plus-fill text-xs"></i>
+            <span>Nouveau Client</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Table des Clients -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50/80 border-b border-slate-200 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+              <th class="px-5 py-3">ID</th>
+              <th class="px-5 py-3">Client</th>
+              <th class="px-5 py-3">Adresse Email</th>
+              <th class="px-5 py-3">Statut Compte</th>
+              <th class="px-5 py-3 text-right">Service Source</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-xs">
+            @for (client of filterClients(state.clients); track client.id) {
+              <tr class="hover:bg-slate-50/70 transition-colors">
+                
+                <!-- ID Monospace -->
+                <td class="px-5 py-3.5">
+                  <span class="font-mono text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded border border-slate-200">
+                    #{{ client.id }}
+                  </span>
+                </td>
+
+                <!-- Avatar + Nom -->
+                <td class="px-5 py-3.5">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-teal-50 border border-teal-200 text-teal-700 font-bold text-xs flex items-center justify-center">
+                      {{ getInitials(client.name) }}
+                    </div>
+                    <div>
+                      <span class="font-semibold text-slate-900 block text-xs">{{ client.name }}</span>
+                      <span class="text-[11px] text-slate-400 font-mono">Tél. vérifié</span>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Email -->
+                <td class="px-5 py-3.5 font-mono text-slate-600">
+                  <div class="flex items-center gap-1.5">
+                    <i class="bi bi-envelope text-slate-400 text-xs"></i>
+                    <span>{{ client.email }}</span>
+                  </div>
+                </td>
+
+                <!-- Statut -->
+                <td class="px-5 py-3.5">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    Actif
+                  </span>
+                </td>
+
+                <!-- Service Source -->
+                <td class="px-5 py-3.5 text-right font-mono text-slate-400 text-[11px]">
+                  customer-service:8056
+                </td>
+
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="px-5 py-8 text-center text-slate-400 text-xs">
+                  <div class="flex flex-col items-center justify-center gap-2">
+                    <i class="bi bi-people text-2xl text-slate-300"></i>
+                    <span>Aucun client ne correspond à la recherche.</span>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pied de Table -->
+      <div class="px-5 py-3 border-t border-slate-200/80 bg-slate-50/50 flex items-center justify-between text-xs text-slate-500">
+        <span>Total: {{ filterClients(state.clients).length }} clients répertoriés</span>
+        <span class="font-mono text-[11px]">Route: http://localhost:9999/CUSTOMER-SERVICE/customers</span>
+      </div>
+
+    </div>
+
   }
+
+  <!-- Modale Contextuelle Frosted Glass : "+ Nouveau Client" (Blueprint D) -->
+  @if (isAddModalOpen) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 animate-fade-in">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-lg overflow-hidden animate-modal-in">
+        
+        <!-- En-tête de la Modale -->
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/80">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-teal-50 border border-teal-200 text-teal-700 flex items-center justify-center text-sm">
+              <i class="bi bi-person-plus-fill"></i>
+            </div>
+            <div>
+              <h3 class="font-semibold text-slate-900 text-sm">Enregistrer un Nouveau Client</h3>
+              <p class="text-xs text-slate-500">Persistance directe dans Customer-Service</p>
+            </div>
+          </div>
+          <button
+            (click)="closeAddModal()"
+            class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition active:scale-95">
+            <i class="bi bi-x-lg text-sm"></i>
+          </button>
+        </div>
+
+        <!-- Formulaire -->
+        <form (submit)="createClient()" class="p-6 space-y-4">
+          
+          @if (modalErrorMessage) {
+            <div class="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs">
+              {{ modalErrorMessage }}
+            </div>
+          }
+
+          <!-- Nom Complet -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+              Nom Complet du Client *
+            </label>
+            <input
+              [(ngModel)]="newClientName"
+              name="clientName"
+              type="text"
+              required
+              placeholder="Ex: Sara Mansouri"
+              class="w-full px-3.5 py-2 rounded-lg bg-slate-50 border border-slate-300 text-xs text-slate-900 focus:outline-hidden focus:border-teal-500 focus:bg-white transition"
+            />
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+              Adresse Email Professionnelle ou Personnelle *
+            </label>
+            <input
+              [(ngModel)]="newClientEmail"
+              name="clientEmail"
+              type="email"
+              required
+              placeholder="Ex: sara.mansouri@gmail.com"
+              class="w-full px-3.5 py-2 rounded-lg bg-slate-50 border border-slate-300 text-xs font-mono text-slate-900 focus:outline-hidden focus:border-teal-500 focus:bg-white transition"
+            />
+          </div>
+
+          <!-- Actions -->
+          <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-2.5">
+            <button
+              type="button"
+              (click)="closeAddModal()"
+              class="px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100 text-xs font-medium transition">
+              Annuler
+            </button>
+            <button
+              type="submit"
+              [disabled]="isSubmitting"
+              class="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 active:scale-95 disabled:opacity-50 text-white text-xs font-medium transition shadow-xs flex items-center gap-1.5">
+              @if (isSubmitting) {
+                <span class="animate-spin inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full"></span>
+              }
+              <span>Enregistrer le Client</span>
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  }
+
 </div>
