@@ -1,22 +1,27 @@
-#spring:
-#  cloud:
-#    gateway:
-#      server:
-#        webflux:
- #         routes:
- #           - id : r1
- #             uri : http://localhost:8056
-#             predicates:
-#                - Path= /customers/**
-#            - id : r2
-#              uri: http://localhost:8057
-#              predicates:
-#                - Path= /accounts/**
 spring:
   cloud:
     gateway:
       server:
         webflux:
+          routes:
+            - id: customer-service-route
+              uri: http://localhost:8056
+              predicates:
+                - Path=/CUSTOMER-SERVICE/**
+              filters:
+                - RewritePath=/CUSTOMER-SERVICE/(?<remaining>.*), /${remaining}
+            - id: ebank-service-route
+              uri: http://localhost:8057
+              predicates:
+                - Path=/EBANK-SERVICE/**
+              filters:
+                - RewritePath=/EBANK-SERVICE/(?<remaining>.*), /${remaining}
+            - id: ebank-bot-route
+              uri: http://localhost:8058
+              predicates:
+                - Path=/EBANK-BOT/**
+              filters:
+                - RewritePath=/EBANK-BOT/(?<remaining>.*), /${remaining}
           globalcors:
             cors-configurations:
               '[/**]':

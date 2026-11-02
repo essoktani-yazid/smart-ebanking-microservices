@@ -44,6 +44,7 @@ pkill -f "ebank-service-0.0.1-SNAPSHOT.jar" 2>/dev/null || true
 pkill -f "gateway-service-0.0.1-SNAPSHOT.jar" 2>/dev/null || true
 pkill -f "ebank-bot-0.0.1-SNAPSHOT.jar" 2>/dev/null || true
 pkill -f "ng serve" 2>/dev/null || true
+pkill -f "cloudflared tunnel" 2>/dev/null || true
 
 echo "=========================================================="
 echo "✅ All microservices and frontend have been stopped."

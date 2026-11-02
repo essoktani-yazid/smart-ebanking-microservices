@@ -21,3 +21,4 @@ echo "🌟 Daemon supervisor active. All services running."
 while true; do
   sleep 30
 done
+

@@ -1,0 +1,20 @@
+{
+  "/CUSTOMER-SERVICE": {
+    "target": "http://127.0.0.1:9999",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/EBANK-SERVICE": {
+    "target": "http://127.0.0.1:9999",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/EBANK-BOT": {
+    "target": "http://127.0.0.1:9999",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}

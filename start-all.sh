@@ -81,7 +81,31 @@ echo "🎨 [6/6] Starting Angular Clean-Light UI (Port 4200 on 0.0.0.0)..."
   nohup npm start </dev/null > "$ROOT_DIR/logs/angular-front.log" 2>&1 &
   echo "$!" >> "$PID_FILE"
 )
-echo "   Angular UI started."
+echo "   Angular UI starting. Waiting for build..."
+
+for i in {1..25}; do
+  if curl -s http://localhost:4200 >/dev/null 2>&1; then
+    echo "   ✔️ Angular UI is ready on port 4200!"
+    break
+  fi
+  sleep 1
+done
+
+# 8. Start Cloudflare HTTPS Public Tunnel (instant firewall-free access)
+CLOUDFLARED_BIN="/home/yazid/.local/bin/cloudflared"
+TUNNEL_URL=""
+if [ -x "$CLOUDFLARED_BIN" ]; then
+  echo "⚡ [Extra] Launching Cloudflare HTTPS Zero-Firewall Tunnel..."
+  nohup "$CLOUDFLARED_BIN" tunnel --url http://localhost:4200 </dev/null > "$ROOT_DIR/logs/tunnel.log" 2>&1 &
+  echo "$!" >> "$PID_FILE"
+  for i in {1..15}; do
+    TUNNEL_URL=$(grep -oE "https://[a-zA-Z0-9-]+\.trycloudflare\.com" "$ROOT_DIR/logs/tunnel.log" | tail -n 1)
+    if [ -n "$TUNNEL_URL" ]; then
+      break
+    fi
+    sleep 1
+  done
+fi
 
 echo ""
 echo "=========================================================="
@@ -89,7 +113,12 @@ echo "🎉 All services launched in background!"
 echo "=========================================================="
 PUBLIC_IP="51.170.134.81"
 echo ""
-echo "🌐 Public Access Points:"
+if [ -n "$TUNNEL_URL" ]; then
+  echo "🚀 INSTANT PUBLIC HTTPS ACCESS (No Firewall / Port Forwarding Required!):"
+  echo "   👉 $TUNNEL_URL"
+  echo ""
+fi
+echo "🌐 Direct Public Access Points (Requires Firewall / OCI Port Authorization):"
 echo "   - Modern Web UI:    http://${PUBLIC_IP}:4200"
 echo "   - Eureka Dashboard: http://${PUBLIC_IP}:8761"
 echo "   - API Gateway:      http://${PUBLIC_IP}:9999"
