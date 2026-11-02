@@ -6,6 +6,7 @@ import { HttpClient, HttpDownloadProgressEvent, HttpEventType } from '@angular/c
 import { Observable, map } from 'rxjs';
 import { MarkdownComponent } from 'ngx-markdown';
 import { LoadingService } from './services/loading.service';
+import { getGatewayUrl } from './config/api.config';
 
 @Component({
   selector: 'app-root',
@@ -51,9 +52,10 @@ export class AppComponent {
     if (!this.drawerQuery.trim()) return;
     this.isDrawerStreaming = true;
 
+    const gw = getGatewayUrl();
     this.drawerResponse$ = this.http
       .get(
-        'http://localhost:9999/EBANK-BOT/chatStream?query=' + encodeURIComponent(this.drawerQuery),
+        `${gw}/EBANK-BOT/chatStream?query=` + encodeURIComponent(this.drawerQuery),
         {
           responseType: 'text',
           observe: 'events',

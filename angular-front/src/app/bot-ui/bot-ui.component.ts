@@ -5,6 +5,7 @@ import { HttpClient, HttpDownloadProgressEvent, HttpEventType } from '@angular/c
 import { Observable, map } from 'rxjs';
 import { MarkdownComponent } from 'ngx-markdown';
 import { LoadingService } from '../services/loading.service';
+import { getGatewayUrl } from '../config/api.config';
 
 export interface ChatMessage {
   role: 'user' | 'assistant';
@@ -74,9 +75,10 @@ Vous pouvez me poser des questions comme :
     this.isStreaming = true;
     this.currentStreamingResponse = '';
 
+    const gw = getGatewayUrl();
     this.response$ = this.http
       .get(
-        'http://localhost:9999/EBANK-BOT/chatStream?query=' + encodeURIComponent(userPrompt),
+        `${gw}/EBANK-BOT/chatStream?query=` + encodeURIComponent(userPrompt),
         {
           responseType: 'text',
           observe: 'events',

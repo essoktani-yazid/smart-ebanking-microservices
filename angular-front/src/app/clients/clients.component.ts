@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { catchError, map, Observable, of, BehaviorSubject, switchMap } from 'rxjs';
 import { Client, ClientListState, RequestStatus } from '../model/client.model';
 import { LoadingService } from '../services/loading.service';
+import { getGatewayUrl } from '../config/api.config';
 
 @Component({
   selector: 'app-clients',
@@ -35,14 +36,15 @@ export class ClientsComponent implements OnInit {
 
   ngOnInit() {
     this.rawClientsState$ = this.refreshTrigger$.pipe(
-      switchMap(() =>
-        this.http.get<Client[]>('http://localhost:9999/CUSTOMER-SERVICE/customers').pipe(
+      switchMap(() => {
+        const gw = getGatewayUrl();
+        return this.http.get<Client[]>(`${gw}/CUSTOMER-SERVICE/customers`).pipe(
           map(resp => ({
             clients: resp,
             status: RequestStatus.SUCCESS
           })),
           catchError(err =>
-            this.http.get<Client[]>('http://localhost:9999/customers').pipe(
+            this.http.get<Client[]>(`${gw}/customers`).pipe(
               map(resp => ({
                 clients: resp,
                 status: RequestStatus.SUCCESS
@@ -55,8 +57,8 @@ export class ClientsComponent implements OnInit {
               )
             )
           )
-        )
-      )
+        );
+      })
     );
   }
 
@@ -108,9 +110,10 @@ export class ClientsComponent implements OnInit {
       email: this.newClientEmail
     };
 
-    this.http.post('http://localhost:9999/CUSTOMER-SERVICE/customers', payload).pipe(
+    const gw = getGatewayUrl();
+    this.http.post(`${gw}/CUSTOMER-SERVICE/customers`, payload).pipe(
       catchError(err =>
-        this.http.post('http://localhost:9999/customers', payload).pipe(
+        this.http.post(`${gw}/customers`, payload).pipe(
           catchError(err2 => {
             this.modalErrorMessage = err2.message || err.message || 'Erreur lors de la création.';
             return of(null);

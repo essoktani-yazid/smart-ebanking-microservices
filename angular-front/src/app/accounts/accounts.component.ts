@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { catchError, map, Observable, of, BehaviorSubject, switchMap } from 'rxjs';
 import { Account, AccountListState, RequestStatus } from '../model/account.model';
 import { LoadingService } from '../services/loading.service';
+import { getGatewayUrl } from '../config/api.config';
 
 @Component({
   selector: 'app-accounts',
@@ -42,15 +43,15 @@ export class AccountsComponent implements OnInit {
 
   ngOnInit() {
     this.rawAccountsState$ = this.refreshTrigger$.pipe(
-      switchMap(() =>
-        this.http.get<Account[]>('http://localhost:9999/EBANK-SERVICE/accounts').pipe(
+      switchMap(() => {
+        const gw = getGatewayUrl();
+        return this.http.get<Account[]>(`${gw}/EBANK-SERVICE/accounts`).pipe(
           map(resp => ({
             accounts: resp,
             status: RequestStatus.SUCCESS
           })),
           catchError(err =>
-            // Fallback to direct route if discovery locator wasn't prefixed
-            this.http.get<Account[]>('http://localhost:9999/accounts').pipe(
+            this.http.get<Account[]>(`${gw}/accounts`).pipe(
               map(resp => ({
                 accounts: resp,
                 status: RequestStatus.SUCCESS
@@ -63,8 +64,8 @@ export class AccountsComponent implements OnInit {
               )
             )
           )
-        )
-      )
+        );
+      })
     );
   }
 
@@ -129,9 +130,10 @@ export class AccountsComponent implements OnInit {
       customerId: this.newCustomerId
     };
 
-    this.http.post('http://localhost:9999/EBANK-SERVICE/accounts', payload).pipe(
+    const gw = getGatewayUrl();
+    this.http.post(`${gw}/EBANK-SERVICE/accounts`, payload).pipe(
       catchError(err =>
-        this.http.post('http://localhost:9999/accounts', payload).pipe(
+        this.http.post(`${gw}/accounts`, payload).pipe(
           catchError(err2 => {
             this.modalErrorMessage = err2.message || err.message || 'Erreur lors de la création.';
             return of(null);

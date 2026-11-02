@@ -31,6 +31,10 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @PostConstruct
     public void registerTelegramBot() {
+        if (telegramBotToken == null || telegramBotToken.isBlank()) {
+            System.out.println("Telegram bot token is not provided. Skipping Telegram bot registration.");
+            return;
+        }
         try {
             TelegramBotsApi api = new TelegramBotsApi(DefaultBotSession.class);
             api.registerBot(this);
@@ -41,7 +45,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             System.out.println("========================================");
 
         } catch (TelegramApiException e) {
-            throw new RuntimeException("Failed to register Telegram bot", e);
+            System.err.println("Warning: Failed to register Telegram bot: " + e.getMessage());
         }
     }
 
