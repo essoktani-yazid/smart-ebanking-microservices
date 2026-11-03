@@ -25,6 +25,9 @@ fi
 if [ -z "$TELEGRAM_TOKEN" ]; then
   export TELEGRAM_TOKEN="123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ_DummyToken"
 fi
+if [ -z "$DISCORD_TOKEN" ]; then
+  export DISCORD_TOKEN="MTEwMDAwMDAwMDAwMDAwMDAwMA.Dummy.TokenForDevStartupOnly"
+fi
 
 mkdir -p "$ROOT_DIR/logs"
 PID_FILE="$ROOT_DIR/logs/.pids"
@@ -99,7 +102,7 @@ nohup java $JAVA_OPTS \
   -Dspring.ai.google.genai.chat.model=gemini-3.5-flash-lite \
   -Dtelegram.token="$TELEGRAM_TOKEN" \
   -Dtelegram.username=ebank1234_bot \
-  -Dspring.autoconfigure.exclude=com.zgamelogic.discord.components.DiscordBot,com.zgamelogic.discord.components.DiscordListener,com.zgamelogic.discord.components.DiscordDispatcher \
+  -Ddiscord.token="$DISCORD_TOKEN" \
   -jar "$BOT_JAR" </dev/null > "$ROOT_DIR/logs/ebank-bot.log" 2>&1 &
 echo "$!" >> "$PID_FILE"
 echo "   EBank Bot started (PID: $!)."
