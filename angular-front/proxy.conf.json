@@ -3,18 +3,33 @@
     "target": "http://127.0.0.1:9999",
     "secure": false,
     "changeOrigin": true,
-    "logLevel": "debug"
+    "ws": true
   },
   "/EBANK-SERVICE": {
     "target": "http://127.0.0.1:9999",
     "secure": false,
     "changeOrigin": true,
-    "logLevel": "debug"
+    "ws": true
   },
   "/EBANK-BOT": {
     "target": "http://127.0.0.1:9999",
     "secure": false,
     "changeOrigin": true,
-    "logLevel": "debug"
+    "ws": true
+  },
+  "/customers": {
+    "target": "http://127.0.0.1:8056",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/accounts": {
+    "target": "http://127.0.0.1:8057",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/chatStream": {
+    "target": "http://127.0.0.1:8058",
+    "secure": false,
+    "changeOrigin": true
   }
 }

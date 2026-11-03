@@ -23,7 +23,15 @@ public class EbankService {
     }
     @McpTool(description = "Get all bank accounts")
     public List<BankAccount> getAllBankAccounts(){
-        return bankAccountRepository.findAll();
+        List<BankAccount> bankAccounts = bankAccountRepository.findAll();
+        bankAccounts.forEach(account -> {
+            try {
+                if (account.getCustomerId() > 0) {
+                    account.setCustomer(customerRestClient.getCustomerById(account.getCustomerId()));
+                }
+            } catch (Exception ignored) {}
+        });
+        return bankAccounts;
     }
     @McpTool(description = "Get bank account by id")
     public BankAccount getBankAccountById(@McpToolParam(description = "bank account id") String id){

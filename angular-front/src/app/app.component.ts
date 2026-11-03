@@ -3,7 +3,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpDownloadProgressEvent, HttpEventType } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, map, catchError, of } from 'rxjs';
 import { MarkdownComponent } from 'ngx-markdown';
 import { LoadingService } from './services/loading.service';
 import { getGatewayUrl } from './config/api.config';
@@ -81,6 +81,13 @@ export class AppComponent {
             default:
               return { type: 'other', content: '' };
           }
+        }),
+        catchError(err => {
+          this.isDrawerStreaming = false;
+          return of({
+            type: 'Response',
+            content: `⚠️ Impossible de joindre l'agent IA : ${err.message || 'Service indisponible'}`
+          });
         })
       );
   }

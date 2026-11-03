@@ -33,7 +33,12 @@ public class EbankChatBotController {
             @RequestParam(name = "query", defaultValue = "Bonjour") String query,
             @RequestParam(name = "conversationId", defaultValue = "default") String conversationId) {
 
-        return ebankAIAgent.chatStream(new Prompt(query), conversationId);
+        try {
+            return ebankAIAgent.chatStream(new Prompt(query), conversationId)
+                    .onErrorResume(e -> Flux.just("⚠️ Erreur de communication avec le modèle IA (Gemini) : " + (e.getMessage() != null ? e.getMessage() : "Clé API invalide ou quota dépassé") + ".\n\n💡 Pour activer les réponses de l'agent en direct, définissez une clé Google Gemini valide : `export GEMINI_API_KEY='votre_cle'`"));
+        } catch (Exception e) {
+            return Flux.just("⚠️ Impossible d'initialiser la requête vers l'agent conversationnel : " + e.getMessage());
+        }
     }
 
 

@@ -1,13 +1,9 @@
+/**
+ * Configuration de l'URL Gateway.
+ * En retournant une chaîne vide "", toutes les requêtes (/CUSTOMER-SERVICE, /EBANK-SERVICE, /EBANK-BOT)
+ * sont relatives à l'origine courante et traversent le reverse-proxy Angular (proxy.conf.json) vers le Gateway.
+ * Cela garantit un fonctionnement 100% universel (Localhost, IP publique, Tunnel Cloudflare) sans blocage de ports ni problème CORS.
+ */
 export function getGatewayUrl(): string {
-  if (typeof window !== 'undefined' && window.location) {
-    const host = window.location.hostname;
-    // If accessed via Cloudflare tunnel or directly on Angular dev port 4200,
-    // use relative path so requests are seamlessly routed via proxy.conf.json to Gateway 9999
-    if (host.includes('trycloudflare.com') || window.location.port === '4200') {
-      return '';
-    }
-    return `http://${host}:9999`;
-  }
   return '';
 }
-

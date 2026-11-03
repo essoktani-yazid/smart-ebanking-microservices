@@ -67,12 +67,30 @@ nohup java $JAVA_OPTS -jar "$GATEWAY_JAR" </dev/null > "$ROOT_DIR/logs/gateway-s
 echo "$!" >> "$PID_FILE"
 echo "   Gateway Service started (PID: $!)."
 
+# Wait for Customer Service and EBank Service before starting EBank Bot (MCP dependencies)
+echo "⏳ Waiting for Customer & EBank services to initialize..."
+for i in {1..45}; do
+  if curl -s http://localhost:8056/customers >/dev/null 2>&1 && curl -s http://localhost:8057/accounts >/dev/null 2>&1; then
+    echo "   ✔️ Customer and EBank services are ready!"
+    break
+  fi
+  sleep 1
+done
+
 # 6. Start EBank Bot (port 8058)
 echo "🤖 [5/6] Starting EBank Bot (Port 8058)..."
 BOT_JAR=$(ls -1 ebank-bot/target/ebank-bot-*.jar 2>/dev/null | grep -v original | head -n 1)
 nohup java $JAVA_OPTS -Dspring.autoconfigure.exclude=com.zgamelogic.discord.components.DiscordBot,com.zgamelogic.discord.components.DiscordListener,com.zgamelogic.discord.components.DiscordDispatcher -jar "$BOT_JAR" </dev/null > "$ROOT_DIR/logs/ebank-bot.log" 2>&1 &
 echo "$!" >> "$PID_FILE"
 echo "   EBank Bot started (PID: $!)."
+
+for i in {1..25}; do
+  if curl -s http://localhost:8058 >/dev/null 2>&1 || curl -s http://localhost:8058/actuator/health >/dev/null 2>&1; then
+    echo "   ✔️ EBank Bot is ready on port 8058!"
+    break
+  fi
+  sleep 1
+done
 
 # 7. Start Angular Frontend (port 4200)
 echo "🎨 [6/6] Starting Angular Clean-Light UI (Port 4200 on 0.0.0.0)..."

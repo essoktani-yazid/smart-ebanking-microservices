@@ -76,7 +76,7 @@ Vous pouvez me poser des questions comme :
     this.currentStreamingResponse = '';
 
     const gw = getGatewayUrl();
-    this.response$ = this.http
+    this.http
       .get(
         `${gw}/EBANK-BOT/chatStream?query=` + encodeURIComponent(userPrompt),
         {
@@ -85,36 +85,34 @@ Vous pouvez me poser des questions comme :
           reportProgress: true
         }
       )
-      .pipe(
-        map(event => {
-          switch (event.type) {
-            case HttpEventType.Sent:
-              return { type: 'sent', content: '' };
+      .subscribe({
+        next: (event) => {
+          if (event.type === HttpEventType.DownloadProgress) {
+            const text = (event as HttpDownloadProgressEvent).partialText ?? '';
+            this.currentStreamingResponse = text;
+          } else if (event.type === HttpEventType.Response) {
+            const fullText = (event as any).body ?? this.currentStreamingResponse;
+            this.currentStreamingResponse = fullText;
+            this.isStreaming = false;
 
-            case HttpEventType.DownloadProgress: {
-              const text = (event as HttpDownloadProgressEvent).partialText ?? '';
-              this.currentStreamingResponse = text;
-              return { type: 'Response', content: text };
-            }
-
-            case HttpEventType.Response: {
-              const fullText = event.body ?? this.currentStreamingResponse;
-              this.currentStreamingResponse = fullText;
-              this.isStreaming = false;
-
-              // Append assistant message to history
-              this.messages.push({
-                role: 'assistant',
-                content: fullText,
-                time: new Date()
-              });
-              return { type: 'Response', content: fullText };
-            }
-
-            default:
-              return { type: 'other', content: '' };
+            this.messages.push({
+              role: 'assistant',
+              content: fullText,
+              time: new Date()
+            });
+            this.currentStreamingResponse = '';
           }
-        })
-      );
+        },
+        error: (err) => {
+          console.error('Chat stream error:', err);
+          this.isStreaming = false;
+          this.messages.push({
+            role: 'assistant',
+            content: `⚠️ Impossible de recevoir la réponse de l'agent IA.\n\n*Détail de l'erreur :* ${err.status === 404 ? 'Service EBANK-BOT introuvable via Gateway (port 8058).' : (err.message || 'Le service est actuellement en cours de démarrage ou la clé Gemini est manquante.')}`,
+            time: new Date()
+          });
+          this.currentStreamingResponse = '';
+        }
+      });
   }
 }
