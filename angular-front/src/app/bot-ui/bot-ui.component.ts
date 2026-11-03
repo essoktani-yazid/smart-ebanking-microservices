@@ -55,14 +55,7 @@ export class BotUiComponent {
   messages: ChatMessage[] = [
     {
       role: 'assistant',
-      content: `👋 **Bonjour ! Je suis votre Assistant Bancaire Intelligent.**
-      
-Je suis propulsé par **Spring AI (Gemini 3.5 Flash-Lite)** et connecté en temps réel aux microservices via le protocole **Model Context Protocol (MCP)**.
-      
-Vous pouvez me poser des questions comme :
-- 📋 *"Donne moi la liste des comptes bancaires"*
-- 👤 *"Quelles sont les informations du client 1 ?"*
-- 💳 *"Quel est le solde du compte et son type ?"*`,
+      content: '👋 Bonjour ! Comment puis-je vous aider aujourd\'hui avec vos comptes et clients ?',
       time: new Date()
     }
   ];
