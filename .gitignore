@@ -36,3 +36,9 @@ build/
 logs/
 *.log
 
+
+# Environment variables & local credentials
+.env
+*.env
+.env.*
+!.env.example

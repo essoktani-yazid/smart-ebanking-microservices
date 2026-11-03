@@ -12,6 +12,20 @@ cd "$ROOT_DIR"
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 export PATH=$JAVA_HOME/bin:$PATH
 
+# Load local environment variables if .env exists
+if [ -f "$ROOT_DIR/.env" ]; then
+  set -a
+  source "$ROOT_DIR/.env"
+  set +a
+fi
+
+if [ -z "$GEMINI_API_KEY" ]; then
+  export GEMINI_API_KEY="AIzaSyDemoPlaceholderKeyForLocalStartup"
+fi
+if [ -z "$TELEGRAM_TOKEN" ]; then
+  export TELEGRAM_TOKEN="123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ_DummyToken"
+fi
+
 mkdir -p "$ROOT_DIR/logs"
 PID_FILE="$ROOT_DIR/logs/.pids"
 > "$PID_FILE"
@@ -80,7 +94,13 @@ done
 # 6. Start EBank Bot (port 8058)
 echo "🤖 [5/6] Starting EBank Bot (Port 8058)..."
 BOT_JAR=$(ls -1 ebank-bot/target/ebank-bot-*.jar 2>/dev/null | grep -v original | head -n 1)
-nohup java $JAVA_OPTS -Dspring.autoconfigure.exclude=com.zgamelogic.discord.components.DiscordBot,com.zgamelogic.discord.components.DiscordListener,com.zgamelogic.discord.components.DiscordDispatcher -jar "$BOT_JAR" </dev/null > "$ROOT_DIR/logs/ebank-bot.log" 2>&1 &
+nohup java $JAVA_OPTS \
+  -Dspring.ai.google.genai.api-key="$GEMINI_API_KEY" \
+  -Dspring.ai.google.genai.chat.model=gemini-3.5-flash-lite \
+  -Dtelegram.token="$TELEGRAM_TOKEN" \
+  -Dtelegram.username=ebank1234_bot \
+  -Dspring.autoconfigure.exclude=com.zgamelogic.discord.components.DiscordBot,com.zgamelogic.discord.components.DiscordListener,com.zgamelogic.discord.components.DiscordDispatcher \
+  -jar "$BOT_JAR" </dev/null > "$ROOT_DIR/logs/ebank-bot.log" 2>&1 &
 echo "$!" >> "$PID_FILE"
 echo "   EBank Bot started (PID: $!)."
 
