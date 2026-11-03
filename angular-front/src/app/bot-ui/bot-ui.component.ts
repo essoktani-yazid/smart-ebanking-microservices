@@ -32,6 +32,25 @@ export class BotUiComponent {
   response$?: Observable<any>;
   isStreaming: boolean = false;
   currentStreamingResponse: string = '';
+  selectedModel: string = 'gemini-3.5-flash-lite';
+  showModelMenu: boolean = false;
+
+  toggleModelMenu() {
+    this.showModelMenu = !this.showModelMenu;
+  }
+
+  selectModel(model: string) {
+    this.selectedModel = model;
+    this.showModelMenu = false;
+  }
+
+  onEnterPress(event: Event) {
+    const keyboardEvent = event as KeyboardEvent;
+    if (!keyboardEvent.shiftKey) {
+      keyboardEvent.preventDefault();
+      this.askAgentStream();
+    }
+  }
 
   messages: ChatMessage[] = [
     {
