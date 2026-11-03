@@ -1,28 +1,10 @@
 <div class="max-w-4xl mx-auto space-y-4 animate-fade-in">
 
-  <!-- Puces de Suggestions Rapides (Quick Chips) -->
-  <div class="bg-white p-4 rounded-xl border border-slate-200/90 shadow-2xs">
-    <div class="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2.5">
-      <i class="bi bi-lightning-charge-fill text-teal-600"></i>
-      <span>Questions suggérées pour tester les outils MCP</span>
-    </div>
-    <div class="flex flex-wrap gap-2">
-      @for (suggestion of suggestedQueries; track suggestion) {
-        <button
-          (click)="selectSuggestion(suggestion)"
-          [disabled]="isStreaming"
-          class="px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-teal-50 text-slate-700 hover:text-teal-700 border border-slate-200 hover:border-teal-200 text-xs transition active:scale-95 text-left disabled:opacity-50">
-          {{ suggestion }}
-        </button>
-      }
-    </div>
-  </div>
-
   <!-- Zone de Discussion (Messages) -->
   <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden flex flex-col">
     
     <!-- Liste des Messages Déroulants -->
-    <div class="p-5 sm:p-6 space-y-5 min-h-[380px] max-h-[560px] overflow-y-auto bg-slate-50/40">
+    <div class="p-5 sm:p-6 space-y-5 min-h-[460px] max-h-[620px] overflow-y-auto bg-slate-50/40">
       
       @for (msg of messages; track $index) {
         
@@ -153,6 +135,26 @@
 
           </div>
 
+        </div>
+
+        <!-- Questions suggérées pour tester les outils MCP (au bas de l'input) -->
+        <div class="pt-2">
+          <div class="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">
+            <i class="bi bi-lightning-charge-fill text-teal-600"></i>
+            <span>Questions suggérées pour tester les outils MCP</span>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            @for (suggestion of suggestedQueries; track suggestion) {
+              <button
+                type="button"
+                (click)="selectSuggestion(suggestion)"
+                [disabled]="isStreaming"
+                class="px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-teal-50 text-slate-700 hover:text-teal-700 border border-slate-200 hover:border-teal-200 text-xs transition active:scale-95 text-left disabled:opacity-50 flex items-center gap-1.5">
+                <i class="bi bi-arrow-return-right text-[10px] text-teal-600"></i>
+                <span>{{ suggestion }}</span>
+              </button>
+            }
+          </div>
         </div>
 
       </form>
