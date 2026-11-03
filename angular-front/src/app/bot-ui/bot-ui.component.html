@@ -1,4 +1,4 @@
-<div class="max-w-4xl mx-auto space-y-4 animate-fade-in">
+<div class="w-full space-y-4 animate-fade-in">
 
   <!-- Zone de Discussion (Messages) -->
   <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden flex flex-col">
@@ -11,7 +11,7 @@
         @if (msg.role === 'user') {
           <!-- Message Utilisateur -->
           <div class="flex justify-end animate-message-in">
-            <div class="max-w-lg bg-teal-600 text-white p-3.5 sm:p-4 rounded-2xl rounded-tr-xs shadow-xs text-xs leading-relaxed">
+            <div class="max-w-2xl bg-teal-600 text-white p-3.5 sm:p-4 rounded-2xl rounded-tr-xs shadow-xs text-xs leading-relaxed">
               <div class="flex items-center justify-between gap-4 mb-1 text-[10px] text-teal-100 font-mono">
                 <span>Vous</span>
                 <span>{{ msg.time | date:'HH:mm' }}</span>
